@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo to YouTube</title>
+</head>
+<body>
+    <h1>GitHub Repo to YouTube</h1>
+    <form id="repoForm">
+        <label for="repoUrl">Enter GitHub Repository URL:</label><br>
+        <input type="text" id="repoUrl" name="repoUrl" required><br>
+        <button type="submit">Generate Video</button>
+    </form>
+    <div id="loading" style="display: none;">Generating video...</div>
+    <div id="videoContainer" style="display: none;">
+        <iframe id="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const form = document.getElementById('repoForm');
+        const loadingDiv = document.getElementById('loading');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const repoUrl = document.getElementById('repoUrl').value;
+            loadingDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/generateVideoFromRepository', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ repoUrl })
+                });
+                const data = await response.json();
+
+                // Assuming the backend returns the URL of the generated video
+                videoPlayer.src = data.videoUrl;
+                videoContainer.style.display = 'block';
+            } catch (error) {
+                console.error('Error generating video:', error);
+                alert('An error occurred while generating the video.');
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
